@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 plugins {
 	id("de.roamingthings.kotlinspring")
+	id("de.roamingthings.integrationtest")
 	id("com.bmuschko.docker-spring-boot-application") version "5.2.0"
 	idea
 }
@@ -21,28 +22,13 @@ repositories {
 	mavenCentral()
 }
 
-sourceSets {
-	create("testIntegration") {
-		java.srcDirs("src/integration-test/java")
-		resources.srcDirs("src/integration-test/resources")
-		withConvention(KotlinSourceSet::class) {
-			kotlin.srcDirs("src/integration-test/kotlin")
-		}
-		compileClasspath += sourceSets["main"].output + sourceSets["test"].output
-		runtimeClasspath += sourceSets["main"].output + sourceSets["test"].output
-	}
-}
-
-val testIntegrationImplementation by configurations.getting {
-	extendsFrom(configurations.testImplementation.get())
-}
-
-configurations["testIntegrationRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
-
 val wireMockVersion: String by project
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-cache")
+
+	// For JDK 10
+	compile("javax.xml.bind:jaxb-api:2.3.0")
 
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
@@ -64,26 +50,6 @@ tasks.test {
 		events("passed", "skipped", "failed")
 	}
 }
-
-val integrationTest = task<Test>("integrationTest") {
-	description = "Runs integration tests."
-	group = "verification"
-
-	useJUnitPlatform()
-
-	systemProperty("spring.profiles.active", "integrationtest")
-
-	testClassesDirs = sourceSets["testIntegration"].output.classesDirs
-	classpath = sourceSets["testIntegration"].runtimeClasspath
-
-	testLogging {
-		events("passed", "skipped", "failed")
-	}
-
-	shouldRunAfter("test")
-}
-
-tasks.check { dependsOn(integrationTest) }
 
 docker {
 	springBootApplication {
