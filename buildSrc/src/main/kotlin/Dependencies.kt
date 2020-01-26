@@ -1,7 +1,11 @@
 package de.roamingthings.gradle
 
+import groovy.lang.Closure
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ExternalModuleDependency
+import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.exclude
 import org.gradle.kotlin.dsl.extra
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
@@ -33,7 +37,10 @@ internal fun Project.configureSpringBootDependencies() = dependencies {
     add("implementation", springBootStarterWeb)
     add("implementation", jetbrainsAnnotations)
 
-    add("testImplementation", springBootStarterTest)
+    @Suppress("UNCHECKED_CAST")
+    add("testImplementation", springBootStarterTest, closureOf<ExternalModuleDependency> {
+        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+    } as Closure<Any>)
 
     add("annotationProcessor", springBootAnnotationProcessor)
 }

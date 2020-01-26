@@ -27,9 +27,6 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-cache")
 
-	// For JDK 10
-	compile("javax.xml.bind:jaxb-api:2.3.0")
-
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
 	runtimeOnly("com.h2database:h2")
